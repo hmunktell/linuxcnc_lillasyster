@@ -1,0 +1,11 @@
+
+; this is called from gladevcp MDI action with the following
+; MDI command:
+;  O<tool_change_moveto_xyz> call [${tool_change_pos_x-f}] [${tool_change_pos_y-f}] [${tool_change_pos_z-f}]
+
+O<tool_change_moveto_xyz> sub
+G53 G0 Z0
+G53 G0 X[#1] Y[#2]
+G53 G0 Z[#3]
+O<tool_change_moveto_xyz> endsub
+

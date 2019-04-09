@@ -1,0 +1,29 @@
+; this is called from gladevcp MDI action with the following
+; MDI command:
+; O<probe> call [${pfeed-f}] [${dist}] [${probeplate}] [${z_safe-f}]
+
+O<probe> sub
+
+M73 (Save modal state)
+G49 (cancel dynamic tool length offset) 
+G91 (relative mode)
+F #1 (Set feed)
+G38.3 Z #2 (Probe towards workpiece)
+
+
+o100 if [#5070 EQ 1] (Probe sucessfull)
+  G10 L20 P[#5220] z[#3] (Set Z touch off point coordinate)
+  ;G70 (quebuster synch)
+  G0 Z [#4] (Retract Z)
+  (MSG, Probe successful!)
+o100 else (Probe failed)
+  G90 G53 G0 Z0 (Retract to safe Z)
+  ;M66 P0 L0 ;Bogus read, need to have a "queuebuster" here to synch task and interpreter
+  G70 (quebuster synch)
+  (abort, Probe failed!)
+o100 endif
+
+M155 (Reload file)
+
+O<probe> endsub
+

@@ -1,0 +1,55 @@
+# GLADE VCP PANEL ACTIVATION ------------------------------------------------------------------
+# Ensure that glade panels is active only when in 
+# Manual mode, is on, it's idle and machine is homed
+
+loadrt and2 count=5
+addf and2.0 servo-thread
+addf and2.1 servo-thread
+addf and2.2 servo-thread
+addf and2.3 servo-thread
+addf and2.4 servo-thread
+
+#halui.mode.is-manual
+#halui.machine.is-on
+#halui.program.is-idle
+#halui.estop.is-activated
+
+# First AND gate
+net and2_0_in0 and2.0.in0 <= halui.mode.is-manual
+net and2_0_in1 and2.0.in1 <= halui.machine.is-on
+
+# Second AND gate
+net and2_1_in0 and2.1.in0 <= halui.program.is-idle
+net and2_1_in1 and2.1.in1 lsrio16.0.in-0 <= halui.joint.0.is-homed
+
+# Third AND gate
+net and2_2_in0 and2.2.in0 lsrio16.0.in-1 <= halui.joint.1.is-homed
+net and2_2_in1 and2.2.in1 lsrio16.0.in-2 <= halui.joint.2.is-homed
+
+# Glue every AND togehter
+net and2_3_in0 and2.3.in0 <= and2.0.out
+net and2_3_in1 and2.3.in1 <= and2.1.out
+net and2_4_in0 and2.4.in0 <= and2.2.out
+net and2_4_in1 and2.4.in1 <= and2.3.out
+
+# Activate panels if allowed
+net and2_4_out and2.4.out => gladevcp.probe gladevcp.tool_probe_position gladevcp.tool_change_position
+#setp gladevcp.probe 1
+# GLADE VCP PANEL ACTIVATION END --------------------------------------------------------------
+
+
+# TOOL CHANGE ---------------------------------------------------------------------------------
+net tool-changed   gladevcp.changed        motion.digital-in-00
+net reftool 	   gladevcp.reftool        motion.digital-in-01
+net spindle-ok     gladevcp.hal_button1    motion.digital-in-02
+
+net tool-change    motion.digital-out-00   gladevcp.change-led 
+net probing        motion.digital-out-01   gladevcp.probing-led
+net enable         motion.digital-out-02   gladevcp.enable
+net continue	   motion.digital-out-03   gladevcp.spindle_ok
+
+net toolno         motion.analog-out-00    gladevcp.number
+net reflen	   motion.analog-out-01    gladevcp.reflen
+net currlen	   motion.analog-out-02    gladevcp.currlen
+# TOOL CHANGE END ------------------------------------------------------------------------------
+

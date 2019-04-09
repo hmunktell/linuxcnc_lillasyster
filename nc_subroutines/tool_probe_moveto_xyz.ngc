@@ -1,0 +1,10 @@
+
+; this is called from gladevcp MDI action with the following
+; MDI command:
+; O<tool_probe_moveto_xyz> call [${tool_probe_pos_x-f}] [${tool_probe_pos_y-f}] [${tool_probe_pos_z-f}]
+
+O<tool_probe_moveto_xyz> sub
+G53 G0 Z0
+G53 G0 X[#1] Y[#2]
+G53 G0 Z[#3]
+O<tool_probe_moveto_xyz> endsub
